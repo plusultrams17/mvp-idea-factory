@@ -405,7 +405,9 @@ CRITICAL RULES:
 }
 
 // -- API call (via local API route) --
-async function callClaude(prompt: string) {
+// expectArray=true: discovery (unwrap OpenAI object wrapper)
+// expectArray=false: plan (return object as-is)
+async function callClaude(prompt: string, expectArray = true) {
   const res = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -423,11 +425,8 @@ async function callClaude(prompt: string) {
   } catch {
     // JSON truncated - try to salvage by closing brackets
     let fixed = clean;
-    // Remove trailing incomplete string/value
     fixed = fixed.replace(/,\s*"[^"]*"?\s*:?\s*"?[^"]*$/, "");
-    // Remove trailing incomplete object
     fixed = fixed.replace(/,\s*\{[^}]*$/, "");
-    // Balance brackets
     const openBraces = (fixed.match(/\{/g) || []).length;
     const closeBraces = (fixed.match(/\}/g) || []).length;
     const openBrackets = (fixed.match(/\[/g) || []).length;
@@ -436,8 +435,8 @@ async function callClaude(prompt: string) {
     fixed += "]".repeat(Math.max(0, openBrackets - closeBrackets));
     parsed = JSON.parse(fixed);
   }
-  // OpenAI json_object mode wraps arrays in an object like {"ideas": [...]}
-  if (!Array.isArray(parsed) && typeof parsed === "object" && parsed !== null) {
+  // Only unwrap for array responses (discovery). Plan returns object as-is.
+  if (expectArray && !Array.isArray(parsed) && typeof parsed === "object" && parsed !== null) {
     const arr = Object.values(parsed).find((v) => Array.isArray(v));
     if (arr) return arr;
   }
@@ -1666,8 +1665,8 @@ export default function MVPIdeaFactory() {
     setPlanLoading(true);
     topRef.current?.scrollIntoView({ behavior: "smooth" });
     try {
-      const result = await callClaude(buildPlanPrompt(idea));
-      setPlan(result);
+      const result = await callClaude(buildPlanPrompt(idea), false);
+      setPlan(result as Plan);
     } catch (e) {
       setError(
         "企画書生成に失敗しました: " +
