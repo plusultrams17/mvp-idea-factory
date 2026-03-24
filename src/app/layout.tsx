@@ -15,6 +15,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MVP Idea Factory",
   description: "トレンドからアイデアを発掘 → 企画書 + Claude Codeプロンプトを自動生成",
+  openGraph: {
+    title: "MVP Idea Factory",
+    description: "トレンドからアイデアを発掘 → 企画書 + Claude Codeプロンプトを自動生成",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MVP Idea Factory",
+    description: "トレンドからアイデアを発掘 → 企画書 + Claude Codeプロンプトを自動生成",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
