@@ -76,16 +76,80 @@ interface Idea {
   competitorCount: number;
 }
 
+interface Competitor {
+  name: string;
+  weakness: string;
+  ourAdvantage: string;
+}
+
+interface ScreenSpec {
+  name: string;
+  route: string;
+  description: string;
+  components: string[];
+}
+
+interface DbTable {
+  name: string;
+  columns: string[];
+  relations: string;
+}
+
+interface ApiEndpoint {
+  method: string;
+  path: string;
+  description: string;
+  request: string;
+  response: string;
+}
+
+interface RevenuePhase {
+  month: string;
+  users: string;
+  revenue: string;
+  actions: string;
+}
+
 interface Plan {
   summary: string;
-  mvpFeatures: string[];
-  outOfScope: string[];
-  userFlow: string;
-  dataModel: string;
-  apiEndpoints: string[];
-  dayByDayPlan: DayPlan[];
-  claudeCodePrompt: string;
   marketingOneLiner: string;
+  // Persona
+  personaName: string;
+  personaAge: string;
+  personaJob: string;
+  personaPain: string;
+  personaGoal: string;
+  // Competitive
+  competitors: Competitor[];
+  positioningStatement: string;
+  // Revenue
+  pricingModel: string;
+  pricingTiers: string[];
+  revenuePhases: RevenuePhase[];
+  unitEconomics: string;
+  // MVP Features
+  mvpFeatures: { feature: string; acceptance: string; priority: string }[];
+  outOfScope: string[];
+  // User Flow
+  userFlowSteps: string[];
+  // Screens
+  screens: ScreenSpec[];
+  // Data Model
+  dbTables: DbTable[];
+  // API
+  apiEndpoints: ApiEndpoint[];
+  // Tech
+  techArchitecture: string;
+  techStack: { category: string; choice: string; reason: string }[];
+  envVars: string[];
+  // Implementation
+  dayByDayPlan: { day: number; tasks: string[]; deliverable: string }[];
+  // KPI
+  kpis: { metric: string; target: string; how: string }[];
+  // Launch
+  launchChecklist: string[];
+  // THE PROMPT - main deliverable
+  claudeCodePrompt: string;
 }
 
 function generateId() {
@@ -207,9 +271,9 @@ IMPORTANT RULES:
 }
 
 function buildPlanPrompt(idea: Idea) {
-  return `You are a technical product planner for solo developers.
+  return `You are a world-class technical product planner and startup architect. Your job is to create a COMPLETE project specification that a solo engineer can use with Cursor + Claude to build the product from scratch with ZERO ambiguity.
 
-Given this product idea:
+=== PRODUCT CONTEXT ===
 - Name: ${idea.title}
 - Tagline: ${idea.tagline}
 - Problem: ${idea.problem}
@@ -217,32 +281,126 @@ Given this product idea:
 - Monetization: ${idea.monetization}
 - Tech Stack: ${idea.techStack?.join(", ")}
 - Competitors: ${idea.competitors}
+- Differentiation: ${idea.differentiationStrategy}
+- Industry: ${idea.industry}
+- Market Size: ${idea.marketSize}
 
-Generate a complete MVP implementation plan. Respond in this EXACT JSON format:
+Generate the COMPLETE project spec. Respond in this EXACT JSON format:
 {
-  "summary": "3-sentence executive summary in Japanese",
-  "mvpFeatures": ["feature1 in Japanese", "feature2", "feature3", "feature4", "feature5"],
-  "outOfScope": ["not-now feature1 in Japanese", "not-now feature2", "not-now feature3"],
-  "userFlow": "Step-by-step user journey in Japanese (numbered list as single string)",
-  "dataModel": "Key database tables/columns description in Japanese",
-  "apiEndpoints": ["GET /api/xxx - description", "POST /api/xxx - description"],
-  "dayByDayPlan": [
-    {"day": 1, "tasks": "Day 1 tasks in Japanese"},
-    {"day": 2, "tasks": "Day 2 tasks in Japanese"},
-    {"day": 3, "tasks": "Day 3 tasks in Japanese"},
-    {"day": 4, "tasks": "Day 4 tasks in Japanese"},
-    {"day": 5, "tasks": "Day 5 tasks in Japanese"},
-    {"day": 6, "tasks": "Day 6 tasks in Japanese"},
-    {"day": 7, "tasks": "Day 7 tasks in Japanese"}
+  "summary": "3-sentence executive summary in Japanese. What it is, who it's for, why it wins.",
+  "marketingOneLiner": "Landing page hero text in Japanese (compelling, specific)",
+
+  "personaName": "ペルソナ名 (e.g. '田中太郎')",
+  "personaAge": "年齢と属性 (e.g. '32歳・スタートアップCTO')",
+  "personaJob": "職業と日常業務 (e.g. '5人チームのリード。毎日Slack100件以上を処理')",
+  "personaPain": "最大の悩み (e.g. '重要な情報がSlackの洪水に埋もれて意思決定が遅れる')",
+  "personaGoal": "このツールで実現したいこと (e.g. '重要メッセージだけ自動抽出して1分で把握したい')",
+
+  "competitors": [
+    {"name": "Competitor1", "weakness": "具体的な弱点 in Japanese", "ourAdvantage": "我々の優位点 in Japanese"},
+    {"name": "Competitor2", "weakness": "...", "ourAdvantage": "..."},
+    {"name": "Competitor3", "weakness": "...", "ourAdvantage": "..."}
   ],
-  "claudeCodePrompt": "A detailed, ready-to-paste prompt for Claude Code in Japanese that will scaffold the entire project.",
-  "marketingOneLiner": "A compelling one-liner for the landing page in Japanese"
+  "positioningStatement": "For [誰] who [課題], ${idea.title} is a [カテゴリ] that [価値]. Unlike [競合], we [差別化]. (Japanese)",
+
+  "pricingModel": "Detailed pricing strategy in Japanese (e.g. 'フリーミアム: Free=月100回まで / Pro=月額¥980で無制限 / Team=月額¥2,980で5人まで')",
+  "pricingTiers": ["Free: 機能A,B制限付き", "Pro ¥980/月: 機能A,B,C無制限", "Team ¥2,980/月: Pro+チーム機能"],
+  "revenuePhases": [
+    {"month": "1ヶ月目", "users": "50人(無料)", "revenue": "¥0", "actions": "Product Hunt + Reddit投稿で初期ユーザー獲得"},
+    {"month": "3ヶ月目", "users": "300人(有料20人)", "revenue": "¥19,600/月", "actions": "SEO記事5本 + 口コミ施策"},
+    {"month": "6ヶ月目", "users": "1,000人(有料80人)", "revenue": "¥78,400/月", "actions": "Team plan追加 + パートナー連携"},
+    {"month": "12ヶ月目", "users": "3,000人(有料200人)", "revenue": "¥196,000/月", "actions": "機能拡充 + API公開"}
+  ],
+  "unitEconomics": "LTV/CACの概算 in Japanese (e.g. 'LTV: 平均12ヶ月利用×¥980=¥11,760 / CAC: SEO+コンテンツ中心で¥500以下 / LTV:CAC比=23:1')",
+
+  "mvpFeatures": [
+    {"feature": "機能名と説明 in Japanese", "acceptance": "完了条件 (e.g. 'ユーザーがGoogleログインで30秒以内にダッシュボード到達')", "priority": "P0"},
+    {"feature": "...", "acceptance": "...", "priority": "P0"},
+    {"feature": "...", "acceptance": "...", "priority": "P1"},
+    {"feature": "...", "acceptance": "...", "priority": "P1"},
+    {"feature": "...", "acceptance": "...", "priority": "P2"}
+  ],
+  "outOfScope": ["V2で対応: 機能X", "V2で対応: 機能Y", "V2で対応: 機能Z"],
+
+  "userFlowSteps": [
+    "1. LP訪問 → ヒーローセクションでCTA「無料で始める」",
+    "2. Google OAuth でワンクリックサインアップ",
+    "3. オンボーディング: 3ステップでセットアップ (目的選択→連携→完了)",
+    "4. ダッシュボード表示 → メイン機能をすぐ使える",
+    "5. 結果確認 → 価値を実感",
+    "6. 制限到達 → アップグレードモーダル",
+    "7. Stripe決済 → Pro Plan開始"
+  ],
+
+  "screens": [
+    {"name": "ランディングページ", "route": "/", "description": "ヒーロー + 機能紹介 + 料金 + CTA", "components": ["Hero", "Features", "Pricing", "CTA"]},
+    {"name": "ダッシュボード", "route": "/dashboard", "description": "メイン画面の詳細説明", "components": ["Sidebar", "MainContent", "StatsBar"]},
+    {"name": "設定", "route": "/settings", "description": "アカウント設定・プラン管理", "components": ["ProfileForm", "PlanCard", "BillingHistory"]}
+  ],
+
+  "dbTables": [
+    {"name": "users", "columns": ["id: uuid PK", "email: text UNIQUE NOT NULL", "name: text", "plan: text DEFAULT 'free'", "created_at: timestamptz"], "relations": "1:N with projects"},
+    {"name": "projects", "columns": ["id: uuid PK", "user_id: uuid FK->users", "name: text NOT NULL", "data: jsonb", "created_at: timestamptz"], "relations": "N:1 with users"}
+  ],
+
+  "apiEndpoints": [
+    {"method": "POST", "path": "/api/auth/callback", "description": "OAuth callback", "request": "code: string", "response": "{ user, session }"},
+    {"method": "GET", "path": "/api/projects", "description": "ユーザーのプロジェクト一覧", "request": "Authorization header", "response": "{ projects: Project[] }"},
+    {"method": "POST", "path": "/api/projects", "description": "新規プロジェクト作成", "request": "{ name, data }", "response": "{ project: Project }"}
+  ],
+
+  "techArchitecture": "Architecture overview in Japanese: フロント→API Route→外部API→DB の流れを説明。認証フロー、データフロー、デプロイ構成を含む (4-5 sentences)",
+  "techStack": [
+    {"category": "Frontend", "choice": "Next.js 14 App Router + Tailwind CSS", "reason": "SSR/SSG対応、Vercelとの相性が最適"},
+    {"category": "Auth", "choice": "Supabase Auth (Google OAuth)", "reason": "無料枠で十分、RLS対応"},
+    {"category": "Database", "choice": "Supabase PostgreSQL", "reason": "無料500MB、RLSでセキュリティ確保"},
+    {"category": "Payment", "choice": "Stripe Checkout", "reason": "最短実装、Webhook対応"},
+    {"category": "AI", "choice": "OpenAI API (GPT-4o-mini)", "reason": "コスパ最良、JSON mode対応"},
+    {"category": "Hosting", "choice": "Vercel", "reason": "Git pushで自動デプロイ、無料枠で十分"}
+  ],
+  "envVars": ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "OPENAI_API_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
+
+  "dayByDayPlan": [
+    {"day": 1, "tasks": ["プロジェクト初期化(Next.js + Tailwind + Supabase)", "DB schema作成・マイグレーション", "Supabase Auth設定(Google OAuth)"], "deliverable": "ログイン・ログアウトが動作する状態"},
+    {"day": 2, "tasks": ["ダッシュボードUI実装", "メインCRUD機能実装", "APIルート作成"], "deliverable": "基本的なデータ作成・表示が動作"},
+    {"day": 3, "tasks": ["コア機能の実装(AI連携など)", "結果表示UI", "エラーハンドリング"], "deliverable": "メイン機能が一通り動作"},
+    {"day": 4, "tasks": ["LP実装(Hero, Features, Pricing)", "レスポンシブ対応", "OGP/SEO設定"], "deliverable": "公開可能なLPが完成"},
+    {"day": 5, "tasks": ["Stripe Checkout統合", "Webhook処理", "プラン制限ロジック"], "deliverable": "決済フローが完動"},
+    {"day": 6, "tasks": ["テスト・バグ修正", "パフォーマンス最適化", "セキュリティチェック"], "deliverable": "本番品質のアプリ"},
+    {"day": 7, "tasks": ["Vercelデプロイ", "ドメイン設定", "Product Hunt準備・投稿"], "deliverable": "本番公開完了"}
+  ],
+
+  "kpis": [
+    {"metric": "DAU (日次アクティブユーザー)", "target": "Week1: 30, Month1: 100", "how": "Supabase Analytics or Plausible"},
+    {"metric": "Free→Paid 転換率", "target": "5% (Month3)", "how": "Stripe Dashboard"},
+    {"metric": "MRR (月次売上)", "target": "Month3: ¥20K, Month6: ¥80K", "how": "Stripe"},
+    {"metric": "Churn Rate", "target": "<5%/月", "how": "Stripe subscriptions"},
+    {"metric": "NPS", "target": ">40", "how": "In-app survey"}
+  ],
+
+  "launchChecklist": [
+    "Vercel本番デプロイ完了・カスタムドメイン設定",
+    "Supabase本番プロジェクト作成・RLS有効化",
+    "Stripe本番キー設定・Webhook登録",
+    "OGP画像作成・meta tags設定",
+    "Google Analytics / Plausible 設定",
+    "Product Hunt投稿準備(スクリーンショット5枚+説明文)",
+    "Reddit r/SideProject + r/startups 投稿文作成",
+    "利用規約・プライバシーポリシーページ作成"
+  ],
+
+  "claudeCodePrompt": "EXTREMELY DETAILED Cursor/Claude prompt in Japanese. This is THE main deliverable. It must contain EVERYTHING needed to build the complete app from 'npx create-next-app' to deployment. Include: (1) Project setup commands (2) All file paths and their contents described (3) Complete DB schema SQL (4) All API routes with full logic (5) All page components with layout details (6) Auth flow implementation (7) Stripe integration steps (8) Environment variables list (9) Deployment steps. The prompt should be 2000+ characters and leave ZERO ambiguity. An engineer should be able to paste this into Cursor and get a working app."
 }
 
-IMPORTANT:
-- The claudeCodePrompt should be EXTREMELY detailed and actionable
-- Include specific tech choices: Next.js App Router, Tailwind CSS, Supabase, Vercel
-- The 7-day plan should be realistic for a solo developer
+CRITICAL RULES:
+- ALL text content must be in Japanese except code/technical terms
+- mvpFeatures must have specific acceptance criteria an engineer can verify
+- screens must list every page the app needs with route and components
+- dbTables must have complete column definitions with types
+- apiEndpoints must include request/response shapes
+- dayByDayPlan tasks must be specific enough to estimate (not vague like "UI実装")
+- claudeCodePrompt is the MOST IMPORTANT field. It must be a complete, copy-paste-ready prompt for Cursor/Claude that produces a fully functional app. Include specific file structure, package.json dependencies, DB schema SQL, component hierarchy, API logic, and deployment config.
+- revenuePhases must show realistic solopreneur numbers, not fantasy
 - Return ONLY valid JSON, no markdown, no explanation`;
 }
 
@@ -1097,99 +1255,30 @@ function PlanView({
     setTimeout(() => setCopiedField(null), 2000);
   };
 
+  const txt = { color: "#ccc", fontSize: 13, lineHeight: 1.7, fontFamily: "'Noto Sans JP', sans-serif" } as const;
+  const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+  const label = { fontSize: 11, color: "#666", ...mono, letterSpacing: "0.5px", marginBottom: 4 } as const;
+
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: 400,
-          gap: 20,
-        }}
-      >
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            border: "3px solid #333",
-            borderTopColor: "#6366f1",
-            borderRadius: "50%",
-            animation: "spin 0.8s linear infinite",
-          }}
-        />
-        <p
-          style={{
-            color: "#888",
-            fontFamily: "'Noto Sans JP', sans-serif",
-            fontSize: 14,
-          }}
-        >
-          「{idea.title}」の企画書を生成中...
-        </p>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 20 }}>
+        <div style={{ width: 48, height: 48, border: "3px solid #333", borderTopColor: "#6366f1", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <p style={{ ...txt, color: "#888" }}>「{idea.title}」の完全企画書を生成中...</p>
       </div>
     );
   }
 
   if (!plan) return null;
 
-  const Section = ({
-    title,
-    children,
-    copyText,
-    copyKey,
-  }: {
-    title: string;
-    children: React.ReactNode;
-    copyText?: string;
-    copyKey?: string;
+  const Section = ({ id, title, children, copyText, copyKey, accent }: {
+    id?: string; title: string; children: React.ReactNode; copyText?: string; copyKey?: string; accent?: string;
   }) => (
-    <div
-      style={{
-        background: "#111",
-        border: "1px solid #222",
-        borderRadius: 12,
-        padding: 20,
-        marginBottom: 16,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 12,
-        }}
-      >
-        <h4
-          style={{
-            margin: 0,
-            color: "#f0f0f0",
-            fontSize: 14,
-            fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.5px",
-          }}
-        >
-          {title}
-        </h4>
+    <div id={id} style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: 20, marginBottom: 16, borderLeft: accent ? `3px solid ${accent}` : undefined }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <h4 style={{ margin: 0, color: "#f0f0f0", fontSize: 14, fontWeight: 700, ...mono, letterSpacing: "0.5px" }}>{title}</h4>
         {copyText && copyKey && (
-          <button
-            onClick={() => copyToClipboard(copyText, copyKey)}
-            style={{
-              padding: "4px 10px",
-              borderRadius: 6,
-              border: "1px solid #333",
-              background:
-                copiedField === copyKey ? "#6366f122" : "transparent",
-              color: copiedField === copyKey ? "#6366f1" : "#666",
-              cursor: "pointer",
-              fontSize: 11,
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          >
-            {copiedField === copyKey ? "✓ Copied" : "Copy"}
+          <button onClick={() => copyToClipboard(copyText, copyKey)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid #333", background: copiedField === copyKey ? "#6366f122" : "transparent", color: copiedField === copyKey ? "#6366f1" : "#666", cursor: "pointer", fontSize: 11, ...mono }}>
+            {copiedField === copyKey ? "Copied!" : "Copy"}
           </button>
         )}
       </div>
@@ -1197,186 +1286,324 @@ function PlanView({
     </div>
   );
 
+  const sections = [
+    { id: "summary", label: "概要" },
+    { id: "persona", label: "ペルソナ" },
+    { id: "competitive", label: "競合分析" },
+    { id: "revenue", label: "収益モデル" },
+    { id: "features", label: "機能仕様" },
+    { id: "userflow", label: "ユーザーフロー" },
+    { id: "screens", label: "画面設計" },
+    { id: "db", label: "DB設計" },
+    { id: "api", label: "API設計" },
+    { id: "tech", label: "技術構成" },
+    { id: "schedule", label: "実装計画" },
+    { id: "kpi", label: "KPI" },
+    { id: "launch", label: "ローンチ" },
+    { id: "prompt", label: "Prompt" },
+  ];
+
   return (
     <div style={{ animation: "fadeSlideIn 0.3s ease-out" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 24,
-        }}
-      >
-        <button
-          onClick={onBack}
-          style={{
-            padding: "8px 16px",
-            borderRadius: 8,
-            border: "1px solid #333",
-            background: "transparent",
-            color: "#aaa",
-            cursor: "pointer",
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 13,
-          }}
-        >
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+        <button onClick={onBack} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: "#aaa", cursor: "pointer", ...mono, fontSize: 13 }}>
           ← 戻る
         </button>
         <div>
-          <h2
-            style={{
-              margin: 0,
-              color: "#f0f0f0",
-              fontSize: 24,
-              fontWeight: 800,
-              fontFamily: "'Space Grotesk', sans-serif",
-            }}
-          >
-            {idea.title}
-          </h2>
-          <p
-            style={{
-              margin: "4px 0 0 0",
-              color: "#888",
-              fontSize: 13,
-              fontFamily: "'Noto Sans JP', sans-serif",
-            }}
-          >
-            {plan.marketingOneLiner}
-          </p>
+          <h2 style={{ margin: 0, color: "#f0f0f0", fontSize: 24, fontWeight: 800, fontFamily: "'Space Grotesk', sans-serif" }}>{idea.title}</h2>
+          <p style={{ ...txt, margin: "4px 0 0 0", color: "#888", fontSize: 13 }}>{plan.marketingOneLiner}</p>
         </div>
       </div>
 
-      <Section title="📋 サマリー">
-        <p
-          style={{
-            margin: 0,
-            color: "#ccc",
-            fontSize: 14,
-            lineHeight: 1.8,
-            fontFamily: "'Noto Sans JP', sans-serif",
-          }}
-        >
-          {plan.summary}
-        </p>
+      {/* TOC Navigation */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20, padding: "12px 16px", background: "#0d0d0d", borderRadius: 10, border: "1px solid #1a1a1a" }}>
+        {sections.map((s) => (
+          <a key={s.id} href={`#${s.id}`} style={{ padding: "4px 10px", borderRadius: 6, background: "#1a1a1a", color: "#888", fontSize: 11, ...mono, textDecoration: "none", transition: "all 0.2s" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#6366f1"; e.currentTarget.style.background = "#6366f115"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#888"; e.currentTarget.style.background = "#1a1a1a"; }}
+          >{s.label}</a>
+        ))}
+      </div>
+
+      {/* 1. Summary */}
+      <Section id="summary" title="EXECUTIVE SUMMARY" accent="#6366f1">
+        <p style={{ margin: 0, ...txt, fontSize: 15, lineHeight: 1.9 }}>{plan.summary}</p>
       </Section>
 
-      <Section title="✅ MVP機能（1週間で作る）">
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {(plan.mvpFeatures || []).map((f, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 8,
-                color: "#ccc",
-                fontSize: 14,
-                fontFamily: "'Noto Sans JP', sans-serif",
-              }}
-            >
-              <span
-                style={{ color: "#6366f1", fontWeight: 700, flexShrink: 0 }}
-              >
-                {i + 1}.
-              </span>
-              {f}
-            </div>
-          ))}
+      {/* 2. Persona */}
+      <Section id="persona" title="TARGET PERSONA" accent="#06b6d4">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div>
+            <div style={label}>Name / Profile</div>
+            <div style={{ ...txt, fontSize: 16, fontWeight: 700, color: "#f0f0f0" }}>{plan.personaName}</div>
+            <div style={{ ...txt, color: "#999" }}>{plan.personaAge} / {plan.personaJob}</div>
+          </div>
+          <div>
+            <div style={label}>Pain Point</div>
+            <div style={{ ...txt, color: "#ef4444" }}>{plan.personaPain}</div>
+            <div style={{ ...label, marginTop: 10 }}>Goal</div>
+            <div style={{ ...txt, color: "#22c55e" }}>{plan.personaGoal}</div>
+          </div>
         </div>
       </Section>
 
-      <Section title="🚫 スコープ外（後回し）">
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {(plan.outOfScope || []).map((f, i) => (
-            <div
-              key={i}
-              style={{
-                color: "#888",
-                fontSize: 13,
-                fontFamily: "'Noto Sans JP', sans-serif",
-                paddingLeft: 12,
-                borderLeft: "2px solid #333",
-              }}
-            >
-              {f}
+      {/* 3. Competitive Analysis */}
+      <Section id="competitive" title="COMPETITIVE ANALYSIS" accent="#ec4899">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, ...mono }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #333" }}>
+                <th style={{ textAlign: "left", padding: "8px 12px", color: "#888", fontWeight: 600 }}>競合</th>
+                <th style={{ textAlign: "left", padding: "8px 12px", color: "#ef4444", fontWeight: 600 }}>弱点</th>
+                <th style={{ textAlign: "left", padding: "8px 12px", color: "#22c55e", fontWeight: 600 }}>我々の優位性</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(plan.competitors || []).map((c, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid #1a1a1a" }}>
+                  <td style={{ padding: "10px 12px", color: "#f0f0f0", fontWeight: 700 }}>{c.name}</td>
+                  <td style={{ padding: "10px 12px", color: "#ccc", fontFamily: "'Noto Sans JP', sans-serif" }}>{c.weakness}</td>
+                  <td style={{ padding: "10px 12px", color: "#ccc", fontFamily: "'Noto Sans JP', sans-serif" }}>{c.ourAdvantage}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {plan.positioningStatement && (
+          <div style={{ marginTop: 14, padding: "10px 14px", background: "#ec489910", borderRadius: 8, border: "1px solid #ec489920", ...txt, color: "#ddd", fontStyle: "italic" }}>
+            {plan.positioningStatement}
+          </div>
+        )}
+      </Section>
+
+      {/* 4. Revenue Model */}
+      <Section id="revenue" title="REVENUE MODEL" accent="#10b981">
+        <div style={{ marginBottom: 16 }}>
+          <div style={label}>Pricing Strategy</div>
+          <div style={txt}>{plan.pricingModel}</div>
+        </div>
+        {plan.pricingTiers?.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(plan.pricingTiers.length, 3)}, 1fr)`, gap: 10, marginBottom: 16 }}>
+            {plan.pricingTiers.map((t, i) => (
+              <div key={i} style={{ background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 10, padding: 14, borderTop: i === 1 ? "2px solid #6366f1" : "2px solid #333" }}>
+                <div style={{ ...txt, color: i === 1 ? "#6366f1" : "#ccc", fontWeight: 700 }}>{t}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div style={label}>Revenue Roadmap</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
+          {(plan.revenuePhases || []).map((p, i) => (
+            <div key={i} style={{ background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", ...mono, marginBottom: 6 }}>{p.month}</div>
+              <div style={{ fontSize: 11, color: "#888", ...mono }}>Users: {p.users}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#22c55e", fontFamily: "'Space Grotesk', sans-serif", margin: "4px 0" }}>{p.revenue}</div>
+              <div style={{ fontSize: 11, color: "#666", fontFamily: "'Noto Sans JP', sans-serif", lineHeight: 1.5 }}>{p.actions}</div>
             </div>
           ))}
         </div>
+        {plan.unitEconomics && (
+          <div style={{ padding: "10px 14px", background: "#10b98110", borderRadius: 8, border: "1px solid #10b98120" }}>
+            <div style={{ ...label, color: "#10b981" }}>Unit Economics</div>
+            <div style={txt}>{plan.unitEconomics}</div>
+          </div>
+        )}
       </Section>
 
-      <Section title="📅 7日間実装プラン">
+      {/* 5. MVP Features */}
+      <Section id="features" title="MVP FEATURE SPEC" accent="#f59e0b">
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {(plan.dayByDayPlan || []).map((d, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                gap: 12,
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  flexShrink: 0,
-                  width: 36,
-                  height: 36,
-                  borderRadius: 8,
-                  background: "#6366f122",
-                  color: "#6366f1",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: 14,
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}
-              >
-                D{d.day}
-              </span>
-              <p
-                style={{
-                  margin: 0,
-                  color: "#ccc",
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                  fontFamily: "'Noto Sans JP', sans-serif",
-                  paddingTop: 6,
-                }}
-              >
-                {d.tasks}
-              </p>
+          {(plan.mvpFeatures || []).map((f, i) => {
+            const feat = typeof f === "string" ? { feature: f, acceptance: "", priority: "P1" } : f;
+            const pColor = feat.priority === "P0" ? "#ef4444" : feat.priority === "P1" ? "#f59e0b" : "#666";
+            return (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 14px", background: "#0a0a0a", borderRadius: 8, border: "1px solid #1a1a1a" }}>
+                <span style={{ flexShrink: 0, padding: "2px 8px", borderRadius: 4, background: pColor + "20", color: pColor, fontSize: 11, fontWeight: 700, ...mono }}>{feat.priority}</span>
+                <div>
+                  <div style={{ ...txt, color: "#f0f0f0", fontWeight: 600 }}>{feat.feature}</div>
+                  {feat.acceptance && <div style={{ ...txt, fontSize: 12, color: "#888", marginTop: 2 }}>AC: {feat.acceptance}</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {plan.outOfScope?.length > 0 && (
+          <div style={{ marginTop: 14 }}>
+            <div style={{ ...label, color: "#666" }}>OUT OF SCOPE (V2)</div>
+            {plan.outOfScope.map((f, i) => (
+              <div key={i} style={{ ...txt, color: "#555", paddingLeft: 12, borderLeft: "2px solid #222", marginBottom: 4, fontSize: 12 }}>{f}</div>
+            ))}
+          </div>
+        )}
+      </Section>
+
+      {/* 6. User Flow */}
+      <Section id="userflow" title="USER FLOW" accent="#8b5cf6">
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {(plan.userFlowSteps || []).map((s, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <span style={{ flexShrink: 0, width: 24, height: 24, borderRadius: "50%", background: "#8b5cf620", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, ...mono }}>{i + 1}</span>
+              <div style={{ ...txt, paddingTop: 2 }}>{typeof s === "string" ? s.replace(/^\d+\.\s*/, "") : s}</div>
             </div>
           ))}
         </div>
       </Section>
 
-      <Section
-        title="🤖 Claude Code プロンプト（コピーしてそのまま貼り付け）"
-        copyText={plan.claudeCodePrompt}
-        copyKey="prompt"
-      >
-        <div
-          style={{
-            background: "#0a0a0a",
-            borderRadius: 8,
-            padding: 16,
-            maxHeight: 400,
-            overflowY: "auto",
-            border: "1px solid #1a1a1a",
-          }}
-        >
-          <pre
-            style={{
-              margin: 0,
-              color: "#a5b4fc",
-              fontSize: 13,
-              lineHeight: 1.7,
-              fontFamily: "'JetBrains Mono', monospace",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-            }}
-          >
+      {/* 7. Screens */}
+      <Section id="screens" title="SCREEN SPEC" accent="#06b6d4">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {(plan.screens || []).map((s, i) => (
+            <div key={i} style={{ background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 10, padding: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ ...txt, color: "#f0f0f0", fontWeight: 700 }}>{s.name}</span>
+                <code style={{ fontSize: 11, color: "#6366f1", ...mono, background: "#6366f110", padding: "2px 6px", borderRadius: 4 }}>{s.route}</code>
+              </div>
+              <div style={{ ...txt, fontSize: 12, color: "#999", marginBottom: 6 }}>{s.description}</div>
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                {(s.components || []).map((c, j) => (
+                  <span key={j} style={{ padding: "2px 6px", borderRadius: 4, background: "#1a1a1a", color: "#888", fontSize: 10, ...mono }}>{c}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* 8. DB Schema */}
+      <Section id="db" title="DATABASE SCHEMA" accent="#f59e0b">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {(plan.dbTables || []).map((t, i) => (
+            <div key={i} style={{ background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 10, padding: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <code style={{ fontSize: 14, fontWeight: 700, color: "#f59e0b", ...mono }}>{t.name}</code>
+                <span style={{ fontSize: 11, color: "#666", ...mono }}>{t.relations}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {(t.columns || []).map((c, j) => (
+                  <code key={j} style={{ fontSize: 12, color: "#aaa", ...mono, paddingLeft: 12 }}>{c}</code>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* 9. API */}
+      <Section id="api" title="API ENDPOINTS" accent="#ec4899">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {(plan.apiEndpoints || []).map((ep, i) => {
+            const e = typeof ep === "string" ? { method: "GET", path: ep, description: "", request: "", response: "" } : ep;
+            const methodColor: Record<string, string> = { GET: "#22c55e", POST: "#3b82f6", PUT: "#f59e0b", DELETE: "#ef4444", PATCH: "#8b5cf6" };
+            return (
+              <div key={i} style={{ background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 8, padding: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <span style={{ padding: "2px 8px", borderRadius: 4, background: (methodColor[e.method] || "#666") + "20", color: methodColor[e.method] || "#888", fontSize: 11, fontWeight: 700, ...mono }}>{e.method}</span>
+                  <code style={{ fontSize: 13, color: "#f0f0f0", ...mono }}>{e.path}</code>
+                </div>
+                {e.description && <div style={{ ...txt, fontSize: 12, color: "#999" }}>{e.description}</div>}
+                {(e.request || e.response) && (
+                  <div style={{ display: "flex", gap: 16, marginTop: 6 }}>
+                    {e.request && <div><span style={{ fontSize: 10, color: "#666", ...mono }}>REQ: </span><code style={{ fontSize: 11, color: "#888", ...mono }}>{e.request}</code></div>}
+                    {e.response && <div><span style={{ fontSize: 10, color: "#666", ...mono }}>RES: </span><code style={{ fontSize: 11, color: "#888", ...mono }}>{e.response}</code></div>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* 10. Tech */}
+      <Section id="tech" title="TECH ARCHITECTURE" accent="#8b5cf6">
+        {plan.techArchitecture && <div style={{ ...txt, marginBottom: 14 }}>{plan.techArchitecture}</div>}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
+          {(plan.techStack || []).map((t, i) => {
+            const ts = typeof t === "string" ? { category: "", choice: t, reason: "" } : t;
+            return (
+              <div key={i} style={{ background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 8, padding: 10 }}>
+                <div style={{ fontSize: 10, color: "#8b5cf6", fontWeight: 700, ...mono, marginBottom: 4 }}>{ts.category}</div>
+                <div style={{ fontSize: 13, color: "#f0f0f0", fontWeight: 700, ...mono }}>{ts.choice}</div>
+                {ts.reason && <div style={{ fontSize: 11, color: "#666", fontFamily: "'Noto Sans JP', sans-serif", marginTop: 2 }}>{ts.reason}</div>}
+              </div>
+            );
+          })}
+        </div>
+        {plan.envVars?.length > 0 && (
+          <div>
+            <div style={label}>Environment Variables</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {plan.envVars.map((v, i) => (
+                <code key={i} style={{ padding: "3px 8px", borderRadius: 4, background: "#1a1a1a", color: "#f59e0b", fontSize: 11, ...mono }}>{v}</code>
+              ))}
+            </div>
+          </div>
+        )}
+      </Section>
+
+      {/* 11. Schedule */}
+      <Section id="schedule" title="7-DAY IMPLEMENTATION PLAN" accent="#6366f1">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {(plan.dayByDayPlan || []).map((d, i) => {
+            const day = typeof d === "object" && "tasks" in d ? d : { day: i + 1, tasks: [String(d)], deliverable: "" };
+            const tasks = Array.isArray(day.tasks) ? day.tasks : [String(day.tasks)];
+            return (
+              <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 10, background: "#6366f115", border: "1px solid #6366f130", color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15, ...mono }}>
+                  D{day.day}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    {tasks.map((t, j) => (
+                      <div key={j} style={{ ...txt, display: "flex", alignItems: "flex-start", gap: 6 }}>
+                        <span style={{ color: "#6366f1", flexShrink: 0 }}>-</span>{t}
+                      </div>
+                    ))}
+                  </div>
+                  {day.deliverable && (
+                    <div style={{ marginTop: 6, padding: "4px 10px", background: "#22c55e10", borderRadius: 6, border: "1px solid #22c55e20", fontSize: 12, color: "#22c55e", ...mono }}>
+                      Deliverable: {day.deliverable}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* 12. KPI */}
+      <Section id="kpi" title="KPI & SUCCESS METRICS" accent="#10b981">
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {(plan.kpis || []).map((k, i) => {
+            const kpi = typeof k === "string" ? { metric: k, target: "", how: "" } : k;
+            return (
+              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, padding: "10px 14px", background: "#0a0a0a", borderRadius: 8, border: "1px solid #1a1a1a" }}>
+                <div><div style={label}>Metric</div><div style={{ ...txt, color: "#f0f0f0", fontWeight: 600 }}>{kpi.metric}</div></div>
+                <div><div style={label}>Target</div><div style={{ ...txt, color: "#22c55e" }}>{kpi.target}</div></div>
+                <div><div style={label}>How to Measure</div><div style={{ ...txt, color: "#999" }}>{kpi.how}</div></div>
+              </div>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* 13. Launch Checklist */}
+      <Section id="launch" title="LAUNCH CHECKLIST" accent="#f59e0b">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+          {(plan.launchChecklist || []).map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 12px", background: "#0a0a0a", borderRadius: 8 }}>
+              <span style={{ flexShrink: 0, width: 18, height: 18, borderRadius: 4, border: "2px solid #333", display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1 }} />
+              <span style={{ ...txt, fontSize: 12 }}>{item}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* 14. Claude Prompt - THE MAIN DELIVERABLE */}
+      <Section id="prompt" title="CURSOR / CLAUDE PROMPT (Copy & Paste)" copyText={plan.claudeCodePrompt} copyKey="prompt" accent="#a78bfa">
+        <div style={{ background: "#0a0a0a", borderRadius: 8, padding: 16, maxHeight: 600, overflowY: "auto", border: "1px solid #1a1a1a" }}>
+          <pre style={{ margin: 0, color: "#a5b4fc", fontSize: 13, lineHeight: 1.7, ...mono, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
             {plan.claudeCodePrompt}
           </pre>
         </div>
