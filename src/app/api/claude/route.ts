@@ -37,15 +37,7 @@ export async function POST(req: NextRequest) {
   const data = await res.json();
   const text = data.choices?.[0]?.message?.content || "";
 
-  // Check if response was truncated
-  const finishReason = data.choices?.[0]?.finish_reason;
-  if (finishReason === "length") {
-    return NextResponse.json(
-      { error: "レスポンスが長すぎて途中で切れました。生成数を減らして再試行してください。" },
-      { status: 422 }
-    );
-  }
-
+  // Even if truncated, return the partial content - frontend will repair JSON
   return NextResponse.json({
     content: [{ text }],
   });

@@ -2,17 +2,19 @@
 
 import { useState, useRef } from "react";
 
+// Ranked by market size × solo dev revenue potential (2025-2026 data)
+// Sources: Fortune Business Insights, Mordor Intelligence, Polaris Market Research, Freemius State of Micro-SaaS 2025
 const IDEA_SOURCES = [
-  { id: "producthunt", label: "ProductHunt", emoji: "\u{1F680}", color: "#da552f" },
-  { id: "reddit", label: "Reddit/X", emoji: "\u{1F4AC}", color: "#ff4500" },
-  { id: "gaps", label: "\u5E02\u5834\u30AE\u30E3\u30C3\u30D7", emoji: "\u{1F50D}", color: "#6366f1" },
-  { id: "remix", label: "\u65E2\u5B58\u00D7AI", emoji: "\u{1F9EA}", color: "#06b6d4" },
-  { id: "github", label: "GitHub Trending", emoji: "\u{1F4BB}", color: "#8b5cf6" },
-  { id: "appreviews", label: "\u30A2\u30D7\u30EA\u30EC\u30D3\u30E5\u30FC", emoji: "\u2B50", color: "#eab308" },
-  { id: "jobs", label: "\u6C42\u4EBA\u30C8\u30EC\u30F3\u30C9", emoji: "\u{1F4BC}", color: "#0ea5e9" },
-  { id: "regulation", label: "\u898F\u5236\u30FB\u6CD5\u6539\u6B63", emoji: "\u{1F3DB}\uFE0F", color: "#14b8a6" },
-  { id: "indiehackers", label: "Indie Hackers", emoji: "\u{1F4B0}", color: "#f97316" },
-  { id: "stackoverflow", label: "Stack Overflow", emoji: "\u{1F527}", color: "#f48024" },
+  { id: "remix", label: "既存×AI", emoji: "🧪", color: "#06b6d4", rank: 1, market: "3.3兆円", growth: "37%", mrrRange: "¥75K-750K", source: "Fortune Business Insights: AI SaaS Market 2025" },
+  { id: "regulation", label: "規制・法改正", emoji: "🏛️", color: "#14b8a6", rank: 2, market: "2.7兆円", growth: "21%", mrrRange: "¥150K-1.5M", source: "Mordor Intelligence: Compliance Software Market" },
+  { id: "jobs", label: "求人トレンド", emoji: "💼", color: "#0ea5e9", rank: 3, market: "1.6兆円", growth: "12%", mrrRange: "¥75K-750K", source: "GM Insights: Talent Acquisition Software Market" },
+  { id: "gaps", label: "市場ギャップ", emoji: "🔍", color: "#6366f1", rank: 4, market: "1.4兆円", growth: "19%", mrrRange: "¥75K-1.5M", source: "SkyQuest: SaaS Market 2025" },
+  { id: "stackoverflow", label: "Dev Tools", emoji: "🔧", color: "#f48024", rank: 5, market: "1.1兆円", growth: "16%", mrrRange: "¥75K-750K", source: "Mordor Intelligence: Software Dev Tools Market" },
+  { id: "github", label: "GitHub→SaaS", emoji: "💻", color: "#8b5cf6", rank: 6, market: "5,700億円", growth: "15%", mrrRange: "¥75K-750K", source: "Mordor Intelligence: Open Source Service Market" },
+  { id: "reddit", label: "Reddit/X", emoji: "💬", color: "#ff4500", rank: 7, market: "1.5兆円", growth: "—", mrrRange: "¥30K-300K", source: "SaaSGaps: Reddit Micro-SaaS Study 2024" },
+  { id: "appreviews", label: "アプリレビュー", emoji: "⭐", color: "#eab308", rank: 8, market: "44.8兆円*", growth: "15%", mrrRange: "¥30K-450K", source: "Fortune BI: Mobile App Market (*個人開発の取り分は小)" },
+  { id: "indiehackers", label: "Indie Hackers", emoji: "💰", color: "#f97316", rank: 9, market: "2.4兆円", growth: "30%", mrrRange: "¥75K-750K", source: "Freemius: State of Micro-SaaS 2025" },
+  { id: "producthunt", label: "ProductHunt", emoji: "🚀", color: "#da552f", rank: 10, market: "—", growth: "低下中", mrrRange: "¥15K-225K", source: "Uprows Hub: PH Launch ROI 2025 (89%がPH再利用しないと回答)" },
 ];
 
 interface DayPlan {
@@ -650,7 +652,7 @@ function SourceToggle({
   onToggle: (id: string) => void;
 }) {
   return (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {sources.map((s) => {
         const active = selected.includes(s.id);
         return (
@@ -658,23 +660,57 @@ function SourceToggle({
             key={s.id}
             onClick={() => onToggle(s.id)}
             style={{
-              padding: "8px 16px",
-              borderRadius: 20,
-              border: `2px solid ${active ? s.color : "#333"}`,
-              background: active ? s.color + "22" : "transparent",
-              color: active ? s.color : "#888",
+              padding: "10px 16px",
+              borderRadius: 10,
+              border: `1px solid ${active ? s.color + "50" : "#222"}`,
+              background: active ? s.color + "10" : "#0d0d0d",
               cursor: "pointer",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 13,
-              fontWeight: active ? 700 : 400,
               transition: "all 0.2s",
               display: "flex",
               alignItems: "center",
-              gap: 6,
+              gap: 12,
+              textAlign: "left",
             }}
           >
-            <span>{s.emoji}</span>
-            {s.label}
+            {/* Rank */}
+            <span style={{
+              width: 24, height: 24, borderRadius: 6,
+              background: active ? s.color + "25" : "#1a1a1a",
+              color: active ? s.color : "#555",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 12, fontWeight: 800,
+              fontFamily: "'Space Grotesk', sans-serif",
+              flexShrink: 0,
+            }}>
+              {s.rank}
+            </span>
+            {/* Label */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 6,
+                color: active ? s.color : "#888",
+                fontSize: 13, fontWeight: 700,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}>
+                <span>{s.emoji}</span>
+                {s.label}
+              </div>
+            </div>
+            {/* Market data */}
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 10, color: "#555", fontFamily: "'JetBrains Mono', monospace" }}>市場規模</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: active ? "#f0f0f0" : "#666", fontFamily: "'Space Grotesk', sans-serif" }}>{s.market}</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 10, color: "#555", fontFamily: "'JetBrains Mono', monospace" }}>成長率</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: active ? "#22c55e" : "#666", fontFamily: "'Space Grotesk', sans-serif" }}>{s.growth}</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 10, color: "#555", fontFamily: "'JetBrains Mono', monospace" }}>Solo MRR</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: active ? "#f59e0b" : "#666", fontFamily: "'Space Grotesk', sans-serif" }}>{s.mrrRange}</div>
+              </div>
+            </div>
           </button>
         );
       })}
